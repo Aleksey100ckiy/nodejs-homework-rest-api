@@ -2,7 +2,7 @@
 const contacts = require('../models/contacts');
 
 
-const { HttpError, ctrlWrapper } = require("../helpers");
+const { HttpError, ctrlWrapper } = require("../helpers/index");
 
 
 

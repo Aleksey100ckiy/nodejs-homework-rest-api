@@ -5,6 +5,8 @@ const ctrlWrapper = ctrl => {
         }
         catch (error) {
             next(error);
+            // const { status = 500, message = "ServerError" } = error;
+            // res.status(status).json({message,})
         }
     }
 
