@@ -7,7 +7,7 @@ const validateBody = schema => {
       throw HttpError(400, "missing fields");
     }
     if (error) {
-       next(HttpError(400, `missing ${ error.message } field`));
+       next(HttpError(400, `missing required name field`));
     }
         next();
         
