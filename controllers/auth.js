@@ -8,7 +8,7 @@ const { HttpError, ctrlWrapper } = require("../helpers/index");
 const { SECRET_KEY } = process.env;
 
 const register = async (req, res) => {
-    const { email, password } = req.body;
+    const { email, password, subscription = "starter" } = req.body;
     const user = await User.findOne({ email });
 
     if (user) {
@@ -20,14 +20,17 @@ const register = async (req, res) => {
     const newUser = await User.create({ ...req.body, password: hashPassword });
 
     res.status(201).json({
-        email: newUser.email,
-        subscription: "starter",
+        "user": {
+            "email": newUser.email,
+            "subscription": subscription,
+        }
+        
         
     })
 };
 
 const login = async (req, res) => {
-    const { email, password, subscription = 'starter' } = req.body;
+    const { email, password } = req.body;
     const user = await User.findOne({ email });
     if (!user) {
         throw HttpError(401, 'Email or password is wrong');
@@ -44,11 +47,11 @@ const login = async (req, res) => {
     const token = jwt.sign(payload, SECRET_KEY, { expiresIn: "23h" });
     await User.findByIdAndUpdate(user._id, { token });
 
-    res.json({
+    res.status(200).json({
         "token": token,
         "user": {
-        email,
-        subscription,
+        "email": email,
+        "subscription": user.subscription,
         },
     })
 }
@@ -64,9 +67,9 @@ const logout = async (req, res) => {
 
 const getCurrent = async (req, res) => {
     const { email, subscription } = req.user;
-    res.json({
-        email,
-        subscription,
+    res.status(200).json({
+        "email": email,
+        "subscription": subscription,
     },
     )
 }
