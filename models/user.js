@@ -20,6 +20,10 @@ password: {
   },
   token: {
     type:String
+  },
+  avatarURL: {
+    type: String,
+    required: true,
   }
 }, { versionKey: false, timestamps: true });
 
