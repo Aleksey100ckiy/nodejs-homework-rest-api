@@ -10,7 +10,7 @@ const { User } = require("../models/user");
 
 const { HttpError, ctrlWrapper, sendEmail } = require("../helpers/index");
 
-const { SECRET_KEY, PROJECT_URL} = process.env;
+const { SECRET_KEY, BASE_URL} = process.env;
 
 const avatarsDir = path.join(__dirname, '../', 'public', 'avatars');
 
@@ -23,15 +23,15 @@ const register = async (req, res) => {
     }
 
     const hashPassword = await bcrypt.hash(password, 10);
-    const verificationToken = nanoid();
     const avatarURL = gravatar.url(email);
+    const verificationToken = nanoid();
 
     const newUser = await User.create({ ...req.body, password: hashPassword, avatarURL, verificationToken });
 
     const verifyEmail = {
-        To: email,
-        Subject: "Verify Email",
-        HTMLPart: `<a target="_blank href ="${PROJECT_URL}/users/verify/:${verificationToken}  ">Click to verify email</a>`
+        to: email,
+        subject: "Verify email",
+        html: `<a target="_blank" href ="${BASE_URL}/users/verify/${verificationToken}">Click to verify email</a>`
     };
 
     await sendEmail(verifyEmail);
@@ -46,7 +46,7 @@ const register = async (req, res) => {
     })
 }
 
-const verify = async (req, res) => {
+const verifyEmail = async (req, res) => {
     const { verificationToken } = req.params;
     const user = await User.findOne({ verificationToken });
     if (!user) {
@@ -55,7 +55,7 @@ const verify = async (req, res) => {
     await User.findByIdAndUpdate(user._id, { verify: true, verificationToken: "" });
 
     res.status(200).json({
-        message: "Verification successful"
+        message: "Verification successful",
     })
 }
 
@@ -70,9 +70,9 @@ const resendVerifyEmail = async (req, res) => {
     }
 
     const verifyEmail = {
-        To: email,
-        Subject: "Verify Email",
-        HTMLPart: `<a target="_blank href ="${PROJECT_URL}/users/verify/:${user.verificationToken}  ">Click to verify email</a>`
+        to: email,
+        subject: "Verify Email",
+        html: `<a target="_blank" href ="${BASE_URL}/users/verify/${user.verificationToken}">Click to verify email</a>`
     };
 
     await sendEmail(verifyEmail);
@@ -150,7 +150,7 @@ const updateAvatar = async (req, res) => {
 
 module.exports = {
     register: ctrlWrapper(register),
-    verify: ctrlWrapper(verify),
+    verifyEmail: ctrlWrapper(verifyEmail),
     resendVerifyEmail: ctrlWrapper(resendVerifyEmail),
     login: ctrlWrapper(login),
     getCurrent: ctrlWrapper(getCurrent),
